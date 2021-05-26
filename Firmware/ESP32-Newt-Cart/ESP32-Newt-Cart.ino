@@ -10,8 +10,8 @@ HX711 scale;
 float calibration = +227700; // Valor calculado para celda de carga.
 
 //HC-SR04
-#define TRIGGER 13
-#define ECHO 12
+#define TRIGGER 2
+#define ECHO 4
 
 //MPU-6050
 #define MPU 0x68
@@ -78,10 +78,10 @@ void setup() {
 }
 
 void loop() {
-  float f = Force();
+ // float f = Force();
   int d = Distance();
-  Serial.print("Fuerza :");
-  Serial.println(f);
+//  Serial.print("Fuerza :");
+//  Serial.println(f);
   Serial.print("Distancia :");
   Serial.println(d);
   Serial.println();
