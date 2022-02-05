@@ -76,7 +76,7 @@ void setup() {
   Wire.write(0);
   Wire.endTransmission(true);
 }
-
+//aaaa
 void loop() {
  // float f = Force();
   int d = Distance();
