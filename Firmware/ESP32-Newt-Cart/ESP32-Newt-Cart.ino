@@ -26,6 +26,19 @@ String values;
 long prev_time;
 float dt;
 
+//OPTICAL ENCODER
+#define PULSE 35
+#define CHANGES 39 //# de cambios de estado en encoder
+#define DIAMETER 70 //Diametro en mm 
+long prev_time2 = 0;
+long dt2 = 0;
+int pulsecount = 0;
+float velo;
+
+//RESERVA
+#define RESERVA_1 32
+#define RESERVA_2 33
+#define RESERVA_3 34
 
 //::::::::::::::::::::: FUNCTIONS ::::::::::::::::::::::::::
 //----------- LOADCELL --------------
@@ -92,9 +105,20 @@ String IMU(){
    values = "90, " +String(Angle[0]) + "," + String(Angle[1]) + "," + String(Angle[2]) + ", -90";
    return values;
 }   
-//----------- ENCODER -----------
-
-
+//----------- OPTICAL ENCODER -----------
+float vel(){
+  dt2 = millis()-prev_time2;
+  if(dt2>1000){
+    velo = ((2*PI)/CHANGES)*pulsecount; //Arroja velocidad estimada en m/s
+    pulsecount=0;
+    prev_time2 = millis();
+    }
+  return velo;
+}
+  
+void IRAM_ATTR EncoderCounter(){
+  pulsecount++;
+  }
 //:::::::::::::::::: MAIN LOOPS ::::::::::::::::::::
 void setup() {
   Serial.begin(115200);
@@ -114,19 +138,27 @@ void setup() {
   Wire.write(0x6B);
   Wire.write(0);
   Wire.endTransmission(true);
+  //OPTICAL ENCODER
+  pinMode(PULSE, INPUT);
+  attachInterrupt(PULSE, EncoderCounter, CHANGE);
 }
 //aaaa
 void loop() {
   float f = Force();
   int d = Distance();
   String euler = IMU();
+  float v = vel();
   Serial.print("Fuerza :");
   Serial.println(f);
   Serial.print("Distancia :");
   Serial.println(d);
   Serial.println("Euler :");
   Serial.println(euler);
+  Serial.println("Velocity:");
+  Serial.println(v);
+  Serial.println(pulsecount);
   Serial.println();
+  
   delay(50);
   
 
