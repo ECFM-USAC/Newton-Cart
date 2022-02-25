@@ -1,0 +1,214 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L RF_Module:ESP32-WROOM-32 U?
+U 1 1 60753017
+P 2500 4200
+F 0 "U?" H 2500 5781 50  0000 C CNN
+F 1 "ESP32-WROOM-32" H 2500 5690 50  0000 C CNN
+F 2 "RF_Module:ESP32-WROOM-32" H 2500 2700 50  0001 C CNN
+F 3 "https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf" H 2200 4250 50  0001 C CNN
+	1    2500 4200
+	1    0    0    -1  
+$EndComp
+Text GLabel 1300 4600 0    50   Input ~ 0
+MPU_SCL
+Text GLabel 1300 4200 0    50   Input ~ 0
+MPU_SDA
+Wire Wire Line
+	1900 4200 1300 4200
+Wire Wire Line
+	1900 4600 1300 4600
+$Comp
+L Connector:Conn_01x03_Female J?
+U 1 1 607591AA
+P 1050 1250
+F 0 "J?" H 942 1535 50  0000 C CNN
+F 1 "Conn_01x03_Female" H 942 1444 50  0000 C CNN
+F 2 "" H 1050 1250 50  0001 C CNN
+F 3 "~" H 1050 1250 50  0001 C CNN
+	1    1050 1250
+	-1   0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 6075A557
+P 1550 900
+F 0 "#PWR?" H 1550 750 50  0001 C CNN
+F 1 "+5V" H 1565 1073 50  0000 C CNN
+F 2 "" H 1550 900 50  0001 C CNN
+F 3 "" H 1550 900 50  0001 C CNN
+	1    1550 900 
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:Earth #PWR?
+U 1 1 6075AAD2
+P 1550 1550
+F 0 "#PWR?" H 1550 1300 50  0001 C CNN
+F 1 "Earth" H 1550 1400 50  0001 C CNN
+F 2 "" H 1550 1550 50  0001 C CNN
+F 3 "~" H 1550 1550 50  0001 C CNN
+	1    1550 1550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1250 1150 1550 1150
+Wire Wire Line
+	1550 1150 1550 900 
+Wire Wire Line
+	1250 1250 1550 1250
+Wire Wire Line
+	1550 1250 1550 1350
+Wire Wire Line
+	1250 1350 1550 1350
+Connection ~ 1550 1350
+Wire Wire Line
+	1550 1350 1550 1550
+$Comp
+L Regulator_Linear:LM1117-3.3 U?
+U 1 1 6075D169
+P 2700 1100
+F 0 "U?" H 2700 1342 50  0000 C CNN
+F 1 "LM1117-3.3" H 2700 1251 50  0000 C CNN
+F 2 "" H 2700 1100 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/lm1117.pdf" H 2700 1100 50  0001 C CNN
+	1    2700 1100
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:Earth #PWR?
+U 1 1 6075E5C6
+P 2700 1650
+F 0 "#PWR?" H 2700 1400 50  0001 C CNN
+F 1 "Earth" H 2700 1500 50  0001 C CNN
+F 2 "" H 2700 1650 50  0001 C CNN
+F 3 "~" H 2700 1650 50  0001 C CNN
+	1    2700 1650
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 6075F066
+P 2050 900
+F 0 "#PWR?" H 2050 750 50  0001 C CNN
+F 1 "+5V" H 2065 1073 50  0000 C CNN
+F 2 "" H 2050 900 50  0001 C CNN
+F 3 "" H 2050 900 50  0001 C CNN
+	1    2050 900 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2050 900  2050 1100
+Wire Wire Line
+	2050 1100 2300 1100
+Wire Wire Line
+	2700 1400 2700 1550
+$Comp
+L Device:CP1_Small C?
+U 1 1 6076062A
+P 2300 1400
+F 0 "C?" H 2391 1446 50  0000 L CNN
+F 1 "CP1_Small" H 2391 1355 50  0000 L CNN
+F 2 "" H 2300 1400 50  0001 C CNN
+F 3 "~" H 2300 1400 50  0001 C CNN
+	1    2300 1400
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:CP1_Small C?
+U 1 1 60760C72
+P 3100 1400
+F 0 "C?" H 3191 1446 50  0000 L CNN
+F 1 "CP1_Small" H 3191 1355 50  0000 L CNN
+F 2 "" H 3100 1400 50  0001 C CNN
+F 3 "~" H 3100 1400 50  0001 C CNN
+	1    3100 1400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2300 1100 2300 1300
+Connection ~ 2300 1100
+Wire Wire Line
+	2300 1100 2400 1100
+Wire Wire Line
+	2300 1500 2300 1550
+Wire Wire Line
+	2300 1550 2700 1550
+Connection ~ 2700 1550
+Wire Wire Line
+	2700 1550 2700 1650
+Wire Wire Line
+	3000 1100 3100 1100
+Wire Wire Line
+	3100 1100 3100 1300
+Wire Wire Line
+	3100 1500 3100 1550
+Wire Wire Line
+	3100 1550 2700 1550
+Text GLabel 3600 1100 2    50   Input ~ 0
+3.3Reg
+Wire Wire Line
+	3600 1100 3100 1100
+Connection ~ 3100 1100
+$Comp
+L power:Earth #PWR?
+U 1 1 607648AA
+P 2500 5800
+F 0 "#PWR?" H 2500 5550 50  0001 C CNN
+F 1 "Earth" H 2500 5650 50  0001 C CNN
+F 2 "" H 2500 5800 50  0001 C CNN
+F 3 "~" H 2500 5800 50  0001 C CNN
+	1    2500 5800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2500 5600 2500 5800
+Text GLabel 2650 2550 2    50   Input ~ 0
+3.3Reg
+Wire Wire Line
+	2650 2550 2500 2550
+Wire Wire Line
+	2500 2550 2500 2800
+Text GLabel 3750 4200 2    50   Input ~ 0
+LC_SCK
+Text GLabel 3750 4350 2    50   Input ~ 0
+LC_DT
+Wire Wire Line
+	3100 4200 3750 4200
+Wire Wire Line
+	3750 4350 3500 4350
+Wire Wire Line
+	3500 4350 3500 4300
+Wire Wire Line
+	3500 4300 3100 4300
+Text GLabel 3750 3200 2    50   Input ~ 0
+US_TRIGGER
+Text GLabel 3750 3400 2    50   Input ~ 0
+US_ECHO
+Wire Wire Line
+	3100 3200 3750 3200
+Wire Wire Line
+	3100 3400 3750 3400
+Text GLabel 3750 3550 2    50   Input ~ 0
+VEL_PULSE
+Wire Wire Line
+	3750 3550 3650 3550
+Wire Wire Line
+	3650 3550 3650 3500
+Wire Wire Line
+	3650 3500 3100 3500
+$EndSCHEMATC
