@@ -4,8 +4,8 @@
 
 //:::::::::::::::::::: DEFINITIONS ::::::::::::::::::::::::
 //LOADCELL
-#define DT 19
-#define SCK 21
+#define DT 18
+#define SCK 19
 HX711 scale;
 float calibration = +227700; // Valor calculado para celda de carga.
 
@@ -14,6 +14,8 @@ float calibration = +227700; // Valor calculado para celda de carga.
 #define ECHO 4
 
 //MPU-6050
+#define MPU_SDA 15
+#define MPU_SCL 13
 #define MPU 0x68
 #define A_R 16384.0 // Para obtener en función de 1G, 32768/2
 #define G_R 131.0 // 32768/250
@@ -27,7 +29,7 @@ long prev_time;
 float dt;
 
 //OPTICAL ENCODER
-#define PULSE 35
+#define PULSE 34
 #define CHANGES 39 //# de cambios de estado en encoder
 #define DIAMETER 70 //Diametro en mm 
 long prev_time2 = 0;
@@ -121,6 +123,7 @@ void IRAM_ATTR EncoderCounter(){
   }
 //:::::::::::::::::: MAIN LOOPS ::::::::::::::::::::
 void setup() {
+  delay(500);
   Serial.begin(115200);
   //LOADCELL
   scale.begin(DT,SCK);
@@ -133,7 +136,7 @@ void setup() {
   pinMode(TRIGGER, OUTPUT);
   pinMode(ECHO, INPUT);
   //MPU-6050
-  Wire.begin(22,23); //GPIO22-->SDA, GPIO23-->SCL
+  Wire.begin(15,13); //GPIO15-->SDA, GPIO13-->SCL
   Wire.beginTransmission(MPU);
   Wire.write(0x6B);
   Wire.write(0);
@@ -144,7 +147,7 @@ void setup() {
 }
 //aaaa
 void loop() {
-  float f = Force();
+  float f = Force();  
   int d = Distance();
   String euler = IMU();
   float v = vel();
@@ -157,9 +160,10 @@ void loop() {
   Serial.println("Velocity:");
   Serial.println(v);
   Serial.println(pulsecount);
+  Serial.println("GG FUNCIONO");
   Serial.println();
   
-  delay(50);
+  delay(200);
   
 
 }
