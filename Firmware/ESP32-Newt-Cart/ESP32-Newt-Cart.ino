@@ -148,22 +148,22 @@ void setup() {
 //aaaa
 void loop() {
   float f = Force();  
-  int d = Distance();
+  //int d = Distance();
   String euler = IMU();
   float v = vel();
   Serial.print("Fuerza :");
   Serial.println(f);
   Serial.print("Distancia :");
-  Serial.println(d);
+  //Serial.println(d);
   Serial.println("Euler :");
   Serial.println(euler);
   Serial.println("Velocity:");
   Serial.println(v);
   Serial.println(pulsecount);
-  Serial.println("GG FUNCIONO");
+  Serial.println("GG FUNCIONO PTM");
   Serial.println();
   
-  delay(200);
+  delay(100);
   
 
 }

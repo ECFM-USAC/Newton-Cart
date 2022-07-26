@@ -5,12 +5,15 @@
 #include <BLEAdvertisedDevice.h> // iDK if necessary 
 #include <BLEScan.h>
 
-BLECharacteristic *pCharacteristic;
+BLECharacteristic* Distance;
+BLECharacteristic* Force;
 bool deviceConnected = false;
-int txValue = 0;
+float distanceValue = 0;
+float forceValue = 0;
 
-#define SERVICE_UUID            "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
-#define CHARACTERISTIC_UUID_TX  "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+#define SERVICE_UUID            "0000180D-0000-1000-8000-00805F9B34FB"
+#define CHARACTERISTIC_DISTANCE_UUID  "00002713-0000-1000-8000-00805F9B34FB"
+#define CHARACTERISTIC_FORCE_UUID  "00002714-0000-1000-8000-00805F9B34FB"
 
 class MyServerCallbacks: public BLEServerCallbacks {
   void onConnect(BLEServer* pServer){
@@ -34,17 +37,23 @@ void setup() {
 
   //Create the BLE Service
 
-  BLEService *pService = pServer->
-  createService(SERVICE_UUID);
+  BLEService *pService = pServer->createService(SERVICE_UUID);
 
   //Create a BLE Characteristic
-  pCharacteristic = pService->createCharacteristic(
-                      CHARACTERISTIC_UUID_TX,
+  Distance = pService->createCharacteristic(
+                      CHARACTERISTIC_DISTANCE_UUID,
                       BLECharacteristic::PROPERTY_NOTIFY
                       );
+  //Create a BLE Characteristic
+  Force = pService->createCharacteristic(
+                      CHARACTERISTIC_FORCE_UUID,
+                      BLECharacteristic::PROPERTY_NOTIFY
+                      );
+                                           
   //BLE2902 needed to notify
-  pCharacteristic->addDescriptor(new BLE2902());
-
+  Distance->addDescriptor(new BLE2902());
+  Force->addDescriptor(new BLE2902());
+  
   //Start the service
   pService->start();
 
@@ -56,19 +65,26 @@ void setup() {
 
 void loop() {
   if (deviceConnected){
-    txValue = random(-10,20);
+    distanceValue = random(10,20);
+    forceValue = random(50,60);
     
     //Conversion of txValue
-    char txString[8];
-    dtostrf(txValue,1,2,txString);
+    char distanceString[8];
+    char forceString[8];
+    dtostrf(distanceValue,1,2,distanceString);
+    dtostrf(forceValue,1,2,forceString);
     
     //Setting the value to the characteristic
-    pCharacteristic->setValue(txString);
+    Distance->setValue(distanceString);
+    Force->setValue(forceString);
     
     //Notifying the connected client
-    pCharacteristic->notify();
-    Serial.println("Sent value: " + String(txString));
-    delay(500);
+    Distance->notify();
+    Force->notify();
+    Serial.println("Sent value: " + String(distanceString));
+    Serial.println("Sent value2: " + String(forceString));
+    Serial.println();
+    delay(2000);
     }
 
 }
