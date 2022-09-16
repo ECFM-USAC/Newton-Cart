@@ -1,6 +1,12 @@
 #include "HX711.h"
 #include "Wire.h"
-//#include "includes/gpios.h"
+#include <BLEDevice.h>
+#include <BLEServer.h>
+#include <BLEUtils.h>
+#include <BLE2902.h>
+#include <BLEAdvertisedDevice.h>
+#include <BLEScan.h>
+#include "includes/gpios.h"
 
 //:::::::::::::::::::: DEFINITIONS ::::::::::::::::::::::::
 //LOADCELL
@@ -148,7 +154,7 @@ void setup() {
 //aaaa
 void loop() {
   float f = Force();  
-  //int d = Distance();
+  int d = Distance();
   String euler = IMU();
   float v = vel();
   Serial.print("Fuerza :");

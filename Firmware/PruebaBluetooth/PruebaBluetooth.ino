@@ -64,27 +64,6 @@ void setup() {
 }
 
 void loop() {
-  if (deviceConnected){
-    distanceValue = random(10,20);
-    forceValue = random(50,60);
-    
-    //Conversion of txValue
-    char distanceString[8];
-    char forceString[8];
-    dtostrf(distanceValue,1,2,distanceString);
-    dtostrf(forceValue,1,2,forceString);
-    
-    //Setting the value to the characteristic
-    Distance->setValue(distanceString);
-    Force->setValue(forceString);
-    
-    //Notifying the connected client
-    Distance->notify();
-    Force->notify();
-    Serial.println("Sent value: " + String(distanceString));
-    Serial.println("Sent value2: " + String(forceString));
-    Serial.println();
-    delay(2000);
-    }
+  
 
 }

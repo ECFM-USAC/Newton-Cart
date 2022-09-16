@@ -9,21 +9,27 @@
 
 //:::::::::::::::::::: DEFINITIONS ::::::::::::::::::::::::
 float f;
-int d;
+float d;
+float v;
+float MPUValues[6];
+float acc, pitch;
+float distance;
+long tempo;
 //----------- RESERVE IO'S IN PCB --------------
 #define RESERVA_1 32
 #define RESERVA_2 33
 #define RESERVA_3 34
 
 //----------- RTOS TASK DEFINITION --------------
-TaskHandle_t Sens;
-TaskHandle_t Comm;
-
+TaskHandle_t Sens, Comm;
 SemaphoreHandle_t syncro;
 
 //----------- BLE --------------
 BLECharacteristic* BLEDistance;
 BLECharacteristic* BLEForce;
+BLECharacteristic* BLEVelocity;
+BLECharacteristic* BLEAcceleration;
+BLECharacteristic* BLEPitch;
 bool deviceConnected = false;  //Connection active or not.
 float distanceValue = 0;
 float forceValue = 0;
@@ -31,6 +37,9 @@ float forceValue = 0;
 #define SERVICE_UUID            "0000180D-0000-1000-8000-00805F9B34FB"
 #define CHARACTERISTIC_DISTANCE_UUID  "00002713-0000-1000-8000-00805F9B34FB"
 #define CHARACTERISTIC_FORCE_UUID  "00002714-0000-1000-8000-00805F9B34FB"
+#define CHARACTERISTIC_VELOCITY_UUID  "00002715-0000-1000-8000-00805F9B34FB"
+#define CHARACTERISTIC_ACCEL_UUID  "00002716-0000-1000-8000-00805F9B34FB"
+#define CHARACTERISTIC_PITCH_UUID  "00002717-0000-1000-8000-00805F9B34FB"
 
 class MyServerCallbacks: public BLEServerCallbacks {
   void onConnect(BLEServer* pServer){
@@ -64,7 +73,7 @@ int16_t AcX, AcY, AcZ, GyX, GyY, GyZ;
 float Acc[3];
 float Gy[3];
 float Angle[3];
-String values;
+float values[6];
 long prev_time;
 float dt;
 
@@ -98,9 +107,27 @@ void ConfigBLE(){
                       CHARACTERISTIC_FORCE_UUID,
                       BLECharacteristic::PROPERTY_NOTIFY   //Create a Force Characteristic
                       );
+
+  BLEVelocity = pService->createCharacteristic(
+                      CHARACTERISTIC_VELOCITY_UUID,
+                      BLECharacteristic::PROPERTY_NOTIFY   //Create a Force Characteristic
+                      );
+
+  BLEAcceleration = pService->createCharacteristic(
+                      CHARACTERISTIC_ACCEL_UUID,
+                      BLECharacteristic::PROPERTY_NOTIFY   //Create a Force Characteristic
+                      );
+
+  BLEPitch = pService->createCharacteristic(
+                      CHARACTERISTIC_PITCH_UUID,
+                      BLECharacteristic::PROPERTY_NOTIFY   //Create a Force Characteristic
+                      );
                                            
   BLEDistance->addDescriptor(new BLE2902());
-  BLEForce->addDescriptor(new BLE2902());    //BLE2902 needed to notify
+  BLEForce->addDescriptor(new BLE2902());
+  BLEVelocity->addDescriptor(new BLE2902());
+  BLEAcceleration->addDescriptor(new BLE2902());
+  BLEPitch->addDescriptor(new BLE2902());    //BLE2902 needed to notify
   
   pService->start();   //Start the service
 
@@ -116,20 +143,18 @@ float GetForce(){
 }
 
 //------------ HC-SR04 READ ------------
-int GetDistance(){
-  long tempo, distance;
+float GetDistance(){
   digitalWrite(TRIGGER, LOW);
-  delayMicroseconds (4);
+  delayMicroseconds(4);
   digitalWrite(TRIGGER, HIGH);
   delayMicroseconds(10);
   digitalWrite(TRIGGER, LOW);
-
-  tempo = pulseIn(ECHO, HIGH, 60); //tempo takes the duration (in ms) of the echo pin, timeout 60ms
+  tempo = pulseIn(ECHO, HIGH); //tempo takes the duration (in ms) of the echo pin, timeout 60ms
   distance = tempo*0.345/2; // distance equal to sound velocity * time /2
   return distance;
 }
 //----------- IMU READ --------------
-String GetIMU(){
+float GetIMU(){
   //Leer los valores del Acelerometro de la IMU
    Wire.beginTransmission(MPU);
    Wire.write(0x3B); //Pedir el registro 0x3B - corresponde al AcX
@@ -169,8 +194,15 @@ String GetIMU(){
    Angle[2] = Angle[2]+Gy[2]*dt;
  
    //Mostrar los valores por consola
-   values = "90, " +String(Angle[0]) + "," + String(Angle[1]) + "," + String(Angle[2]) + ", -90";
-   return values;
+   String valuesString = "90, " +String(Angle[0]) + "," + String(Angle[1]) + "," + String(Angle[2]) + ", -90";
+   MPUValues[0]= AcX/A_R;
+   MPUValues[1]= AcY;
+   MPUValues[2]= AcZ/A_R; //Valores de aceleración obtenidos por IMU
+   MPUValues[3]= Angle[0]; //ROLL
+   MPUValues[4]= Acc[1]; //PITCH
+   MPUValues[5]= Angle[2]; //YAW
+   
+   return 0;
 }   
 //----------- OPTICAL ENCODER READ -----------
 float GetVelocity(){
@@ -190,49 +222,71 @@ void IRAM_ATTR EncoderCounter(){
 //-----------********* RTOS **********--------------
 void Sensing(void* parameters){
   for(;;){
-      //xSemaphoreTake(syncro, portMAX_DELAY);
-      f = GetForce();  
-      d = GetDistance();
-      //String euler = GetIMU();
-      //float v = GetVelocity();
-      Serial.print("Fuerza :");
-      Serial.println(f);
-      Serial.print("Distancia :");
-      Serial.println(d);
-      //Serial.println("Euler :");
-      //Serial.println(euler);
-      //Serial.println("Velocity:");
-      //Serial.println(v);
+      //Serial.println("Entering Sensing");
+      xSemaphoreTake(syncro, portMAX_DELAY);
+      //f = GetForce();  
+      //d = GetDistance();
+      //v = GetVelocity();
+      GetIMU();
+      acc = MPUValues[0];
+      pitch = MPUValues[4];
+      //Serial.print("Fuerza: ");
+      //Serial.println(f);
+      //Serial.print("Distancia: ");
+      //Serial.println(d);
+      Serial.println("Euler :");
+      //Serial.println("AccX =" + String(MPUValues[0]));
+      //Serial.println("AccZ =" + String(MPUValues[2]));
+      Serial.println("PITCH =" + String(MPUValues[4]));
+      //Serial.print("Velocity: ");
+      //Serial.print(v);
+      //Serial.print(" --pulsos: ");
       //Serial.println(pulsecount);
-      Serial.println("Running at core -> ");
-      Serial.println(xPortGetCoreID());
-      delay(1000);
-      //xSemaphoreGive(syncro); 
-      delay(50);   
+      //delay(500);
+      Serial.println("Sensing completed");
+      xSemaphoreGive(syncro); 
+      delay(1000);   
     } 
   }
 
 void Communicate(void* parameters){
   for(;;){
+      xSemaphoreTake(syncro, portMAX_DELAY);
       if (deviceConnected){
         //Conversion of txValue
         char distanceString[8];
         char forceString[8];
+        char velocityString[8];
+        char accelString[8];
+        char pitchString[8];
         dtostrf(d,1,2,distanceString);
         dtostrf(f,1,2,forceString);
+        dtostrf(v,1,2,velocityString);
+        dtostrf(acc,1,2,accelString);
+        dtostrf(pitch,1,2,pitchString);
         
         //Setting the value to the characteristic
         BLEDistance->setValue(distanceString);
         BLEForce->setValue(forceString);
+        BLEVelocity->setValue(velocityString);
+        BLEAcceleration->setValue(accelString);
+        BLEPitch->setValue(pitchString);
         
         //Notifying the connected client
         BLEDistance->notify();
         BLEForce->notify();
-        Serial.println("Sent value: " + String(distanceString));
-        Serial.println("Sent value2: " + String(forceString));
+        BLEVelocity->notify();
+        BLEAcceleration->notify();
+        BLEPitch->notify();
+        Serial.println("Sent distance: " + String(distanceString));
+        Serial.println("Sent force: " + String(forceString));
+        Serial.println("Sent velocity: " + String(velocityString));
+        Serial.println("Sent acceleration: " + String(accelString));;
+        Serial.println("Sent pitch angle: " + String(pitchString));
         Serial.println();
       }
-     delay(500);
+      xSemaphoreGive(syncro);
+      delay(1000);
     }
   }
 
@@ -262,26 +316,28 @@ void setup() {
   attachInterrupt(PULSE, EncoderCounter, CHANGE);
   //----------- COMMUNICATION CONFIG -----------
   ConfigBLE();
-  
+  delay(1000);
   //----------- RTOS TASK SETUP -----------
+  syncro = xSemaphoreCreateMutex();
   xTaskCreatePinnedToCore(
     Sensing,            //Call to function.
-    "Communication Task",
-    6000,
+    "Sensing Task",
+    8000,
     NULL,
     1,
     &Sens,      //Task definition in TaskHandler_t function
-    0);         //Core
-
+    1);         //Core
+  delay(500);
   xTaskCreatePinnedToCore(
     Communicate,            //Call to function.
     "Communication Task",
-    6000,
+    8000,
     NULL,
-    1,
+    2,
     &Comm,      //Task definition in TaskHandler_t function
-    1);         //Core
+    0);         //Core
 }
 
 void loop() {
+  
 }
